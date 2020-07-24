@@ -1,41 +1,117 @@
-<html lang='en'>
-<head>
-  <meta charset='utf-8'>
-  <link rel='stylesheet' href='../static/style.css'>
-  <script src='../static/client.js'></script>
-</head>
-<body>
-<div>
-  <div class='center'>
-    <div class='title'>Classify Bear Images 🐻</div>
-    <p>
-      Use images of <strong>teddy</strong> bears, <strong>black</strong> bears, <strong>grizzly</strong> bears, or
-      all three!
-    </p>
-    <div class='content'>
-      <div class='no-display'>
-        <input id='file-input'
-               class='no-display'
-               type='file'
-               name='file'
-               accept='image/*'
-               onchange='showPicked(this)'>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../static/index.css" />
+    <link rel="stylesheet" href="../static/starburst.css" />
+    <title>Who's that Pokémon?</title>
+  </head>
+  <body>
+    <div class="starburst-panel starburst starburst--both"></div>
+
+    <div class="content">
+      <h1 class="logo option-3">Who's that PoKéMoN?</h1>
+
+      <div class="image-picker-panel">
+        <p class="instructions">
+          Upload a photo to Professor Oak to help identify the Pokemon!
+        </p>
+
+        <input
+          id="file-input"
+          class="no-display"
+          type="file"
+          name="file"
+          accept="image/*"
+          onchange="pickImage(this)"
+        />
+
+        <button
+          class="image-picker-button"
+          type="button"
+          onclick="showImagePicker()"
+        >
+          <svg
+            aria-hidden="true"
+            focusable="false"
+            data-prefix="fas"
+            data-icon="camera"
+            role="img"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="-8 -8 524 524"
+          >
+            <path
+              fill="currentColor"
+              d="M512 144v288c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V144c0-26.5 21.5-48 48-48h88l12.3-32.9c7-18.7 24.9-31.1 44.9-31.1h125.5c20 0 37.9 12.4 44.9 31.1L376 96h88c26.5 0 48 21.5 48 48zM376 288c0-66.2-53.8-120-120-120s-120 53.8-120 120 53.8 120 120 120 120-53.8 120-120zm-32 0c0 48.5-39.5 88-88 88s-88-39.5-88-88 39.5-88 88-88 88 39.5 88 88z"
+              class=""
+            ></path>
+          </svg>
+        </button>
       </div>
-      <button class='choose-file-button' type='button' onclick='showPicker()'>Select Image</button>
-      <div class='upload-label'>
-        <label id='upload-label'>No file chosen</label>
-      </div>
-      <div>
-        <img id='image-picked' class='no-display' alt='Chosen Image' height='200'>
-      </div>
-      <div class='analyze'>
-        <button id='analyze-button' class='analyze-button' type='button' onclick='analyze()'>Analyze</button>
-      </div>
-      <div class='result-label'>
-        <label id='result-label'></label>
+
+      <div class="picked-image-panel no-display">
+        <button type="button" class="image-clear-button" onclick="clearImage()">
+          <svg
+            aria-hidden="true"
+            focusable="false"
+            data-prefix="far"
+            data-icon="times-circle"
+            role="img"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+          >
+            <path
+              fill="currentColor"
+              d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm101.8-262.2L295.6 256l62.2 62.2c4.7 4.7 4.7 12.3 0 17l-22.6 22.6c-4.7 4.7-12.3 4.7-17 0L256 295.6l-62.2 62.2c-4.7 4.7-12.3 4.7-17 0l-22.6-22.6c-4.7-4.7-4.7-12.3 0-17l62.2-62.2-62.2-62.2c-4.7-4.7-4.7-12.3 0-17l22.6-22.6c4.7-4.7 12.3-4.7 17 0l62.2 62.2 62.2-62.2c4.7-4.7 12.3-4.7 17 0l22.6 22.6c4.7 4.7 4.7 12.3 0 17z"
+              class=""
+            ></path>
+          </svg>
+        </button>
+        <img id="picked-image" alt="Chosen Image" />
       </div>
     </div>
-  </div>
-</div>
-</body>
+
+    <div class="analyze">
+      <button
+        id="analyze-button"
+        class="analyze-button"
+        type="button"
+        onclick="analyze()"
+      >
+        ANALYZE
+      </button>
+    </div>
+
+    <div class="results">
+      <div class="results__analyzing no-display">Analyzing...</div>
+      <div class="results__error no-display">Error!</div>
+      <div class="results__found no-display">
+        <p>It's...</p>
+        <p class="result-text"></p>
+      </div>
+      <button
+        type="button"
+        class="results-close-button"
+        onclick="closeResults()"
+      >
+        <svg
+          aria-hidden="true"
+          focusable="false"
+          data-prefix="far"
+          data-icon="times-circle"
+          role="img"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 512 512"
+        >
+          <path
+            fill="currentColor"
+            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm101.8-262.2L295.6 256l62.2 62.2c4.7 4.7 4.7 12.3 0 17l-22.6 22.6c-4.7 4.7-12.3 4.7-17 0L256 295.6l-62.2 62.2c-4.7 4.7-12.3 4.7-17 0l-22.6-22.6c-4.7-4.7-4.7-12.3 0-17l62.2-62.2-62.2-62.2c-4.7-4.7-4.7-12.3 0-17l22.6-22.6c4.7-4.7 12.3-4.7 17 0l62.2 62.2 62.2-62.2c4.7-4.7 12.3-4.7 17 0l22.6 22.6c4.7 4.7 4.7 12.3 0 17z"
+            class=""
+          ></path>
+        </svg>
+      </button>
+    </div>
+  </body>
+  <script src="../static/client.js"></script>
 </html>
